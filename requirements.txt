@@ -1,0 +1,9 @@
+anthropic>=0.120.2
+requests>=2.34.2
+jinja2>=3.1.6
+icalendar>=7.2.2
+# zoneinfo has no bundled tz database on Windows, so generate_brief.py raises
+# ZoneInfoNotFoundError at import on a fresh Windows clone. Linux runners have a
+# system tzdata and never needed it, which is why this went unnoticed while the
+# README invited people to fork the project.
+tzdata>=2026.1; platform_system == "Windows"

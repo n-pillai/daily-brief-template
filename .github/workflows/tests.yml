@@ -1,0 +1,42 @@
+name: tests
+
+# Until now nothing ran these. test_quality.py held 32 passing tests and
+# test_regressions.py 13, but neither was wired to anything — the only other
+# workflows are the brief itself and a manual-dispatch schedule probe, so a PR
+# could not fail on a broken test.
+#
+# Both suites are pure and offline: no API keys, no network, no secrets. That
+# means they run safely on pull requests from forks too.
+#
+# test_schedule.py is deliberately excluded — it needs CALENDAR_ICS_URL and
+# reaches the network, so it stays a manual dispatch in test-schedule.yml.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Quality layer (prose lint, word budget, coverage log)
+        run: python test_quality.py
+
+      - name: Regression detection (section bleed, cross-section dedup)
+        run: python test_regressions.py
