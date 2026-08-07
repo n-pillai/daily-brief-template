@@ -1,0 +1,29 @@
+{
+  "sources": {
+    "core": ["The Economist", "NYT", "BBC", "TechCrunch", "Stratechery", "AI Daily Brief", "TLDR"],
+    "subscriptions": ["The Economist", "NYT", "Lenny's Newsletter"],
+    "explore_pool": ["The Economist", "New York Times", "WIRED", "MIT Technology Review", "Ars Technica", "The Verge", "Aeon", "Quanta Magazine", "Smithsonian Magazine", "Fast Company", "80,000 Hours", "Hacker News"],
+    "podcasts": ["Lenny's Podcast", "AI Daily Brief", "Acquired", "The Journal (WSJ)"],
+    "trusted_sources": {
+      "world": ["BBC", "Reuters", "Associated Press", "New York Times", "The Guardian", "Financial Times", "The Economist", "Washington Post", "Al Jazeera English"],
+      "india": ["The Hindu", "Hindustan Times", "The Indian Express", "Mint", "NDTV", "Economic Times", "Reuters India", "Business Standard"],
+      "tech": ["TechCrunch", "The Verge", "Ars Technica", "WIRED", "MIT Technology Review", "Stratechery", "Bloomberg Technology"],
+      "business": ["Bloomberg", "Financial Times", "Wall Street Journal", "CNBC", "The Economist", "Reuters", "Forbes"],
+      "science": ["Nature", "Science", "STAT News", "KFF Health News", "Quanta Magazine", "Scientific American", "New Scientist", "The Lancet"],
+      "sports": ["ESPN", "BBC Sport", "The Athletic", "Sky Sports", "Sports Illustrated", "Reuters Sports", "AP Sports"]
+    }
+  },
+  "categories": [
+    {"id": "world", "name": "World & Politics", "badge_class": "world", "number": "01", "weight": 3, "freshness_hours": 24},
+    {"id": "india", "name": "India", "badge_class": "india", "number": "02", "weight": 3, "freshness_hours": 24},
+    {"id": "tech", "name": "Tech & AI", "badge_class": "tech", "number": "03", "weight": 3, "freshness_hours": 24},
+    {"id": "business", "name": "Business & Finance", "badge_class": "business", "number": "04", "weight": 2, "freshness_hours": 24},
+    {"id": "science", "name": "Science & Health", "badge_class": "science", "number": "05", "weight": 2, "freshness_hours": 48},
+    {"id": "sports", "name": "Sports", "badge_class": "sports", "number": "06", "weight": 2, "freshness_hours": 24}
+  ],
+  "word_budget": {
+    "reading_minutes": 10,
+    "words_per_minute": 240,
+    "explore_weight": 2
+  }
+}

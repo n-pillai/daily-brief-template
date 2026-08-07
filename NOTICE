@@ -1,0 +1,9 @@
+Third-party notices for The Daily Brief
+=======================================
+Parts of `brief_quality.py` — the prose linter's banned-word lists, the
+meta-frame patterns, and the proper-noun/quoted-material exemption approach —
+are adapted from `scripts/check.py` in The Daily Brief skill by Tenex Labs
+(https://github.com/tenex-labs/daily-brief), used under the MIT License. The
+word-budget, coverage-log and corrections designs are modelled on the same
+project's SKILL.md. Their full copyright notice is reproduced in that file's
+header, as MIT requires.
