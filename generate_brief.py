@@ -145,6 +145,12 @@ DAY_NAME = TODAY.strftime("%A")                 # Friday
 OUTPUT_DIR = Path("briefs")
 OUTPUT_DIR.mkdir(exist_ok=True)
 
+# A fresh fork has no data/ — nothing in it is tracked, since every file it
+# holds is generated at runtime. Create it here, alongside briefs/, so the
+# coverage log and regression report have somewhere to land on the first run.
+DATA_DIR = Path("data")
+DATA_DIR.mkdir(exist_ok=True)
+
 TEMPLATE_PATH = Path("templates/brief_template.html")
 
 # ── Load config ────────────────────────────────────────────────────────────

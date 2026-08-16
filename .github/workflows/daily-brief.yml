@@ -125,7 +125,17 @@ jobs:
           # deep_dive_state.json is deliberately absent: the queue is personal data,
           # lives in the private personal-data store, and is read-only from here.
           git add -A briefs/
-          git add data/regression_report.json data/known_bugs.json data/coverage_log.json
+          # -A over a guarded directory, rather than three named paths: none of
+          # data/ is tracked in a fresh fork, and `git add <missing path>` is a
+          # hard error that fails the run after the brief has already been
+          # emailed. known_bugs.json is optional (the regression check skips
+          # cleanly without it), so naming it was a guaranteed failure for
+          # anyone who forked this. The generator creates data/, so the guard
+          # only matters if generation was skipped — but a bare `git add -A
+          # data/` is still fatal on a missing directory.
+          if [ -d data ]; then
+            git add -A data/
+          fi
           if git diff --cached --quiet; then
             echo "No new briefs to commit"
           else
