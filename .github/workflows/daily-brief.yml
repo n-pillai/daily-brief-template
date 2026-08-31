@@ -81,15 +81,8 @@ jobs:
           path: briefs/dryrun_*
           retention-days: 7
 
-      # Retention. This step existed once (45ae8e4) and was dropped a day later by
-      # 79307b0, a refactor whose message says nothing about removing it. It stayed
-      # documented as a live feature in the README, the landing page and
-      # PROJECT_STATUS for five months while briefs/ grew to 172 MB across 93 files.
-      #
-      # Two fixes over the original: it pruned only .mp3, leaving .html to accumulate
-      # forever; and it made its own second commit and push, which is noisy and races
-      # the commit below. Pruning here, before staging, puts the additions and the
-      # deletions in one commit.
+      # Keeps only the last RETENTION_DAYS days of .mp3/.html briefs. Pruned here,
+      # before staging, so additions and deletions land in one commit.
       - name: Prune briefs older than the retention window
         if: steps.check_existing.outputs.skip == 'false' && github.event.inputs.dry_run != 'true'
         env:
@@ -122,17 +115,12 @@ jobs:
           git config user.name "Daily Brief Bot"
           git config user.email "daily-brief-bot@users.noreply.github.com"
           # -A so the prune step's deletions are staged alongside today's additions.
-          # deep_dive_state.json is deliberately absent: the queue is personal data,
-          # lives in the private personal-data store, and is read-only from here.
+          # deep_dive_state.json is deliberately absent -- it's user-specific
+          # reading/listening data, not meant for this public template.
           git add -A briefs/
-          # -A over a guarded directory, rather than three named paths: none of
-          # data/ is tracked in a fresh fork, and `git add <missing path>` is a
-          # hard error that fails the run after the brief has already been
-          # emailed. known_bugs.json is optional (the regression check skips
-          # cleanly without it), so naming it was a guaranteed failure for
-          # anyone who forked this. The generator creates data/, so the guard
-          # only matters if generation was skipped — but a bare `git add -A
-          # data/` is still fatal on a missing directory.
+          # data/ isn't tracked in a fresh fork, and `git add <missing path>` is a
+          # hard error -- would fail the run after the brief already sent. The
+          # generator creates data/, so this only matters if generation was skipped.
           if [ -d data ]; then
             git add -A data/
           fi
