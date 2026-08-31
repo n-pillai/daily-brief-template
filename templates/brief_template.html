@@ -585,7 +585,7 @@
       <div class="dd-meta">
         <span class="dd-tag longread">Read</span>
         Day {{ r.days_shown }}{% if r.estimated_time %} · {{ r.estimated_time }}{% endif %}
-        {% if r.days_shown >= 7 %} — <em>tell Leo when you finish to get your next read</em>{% endif %}
+        {% if r.days_shown >= 7 %} — <em>mark it done to get your next read</em>{% endif %}
       </div>
       <h4>{% if r.url %}<a href="{{ r.url }}" target="_blank">{{ r.title }}</a>{% else %}{{ r.title }}{% endif %}</h4>
       {% if r.source %}<div class="dd-meta">{{ r.source }}</div>{% endif %}
@@ -602,7 +602,7 @@
       <div class="dd-meta">
         <span class="dd-tag podcast">Listen</span>
         Day {{ l.days_shown }}{% if l.estimated_time %} · {{ l.estimated_time }}{% endif %}
-        {% if l.days_shown >= 7 %} — <em>tell Leo when you finish to get your next listen</em>{% endif %}
+        {% if l.days_shown >= 7 %} — <em>mark it done to get your next listen</em>{% endif %}
       </div>
       <h4>{% if l.url %}<a href="{{ l.url }}" target="_blank">{{ l.title }}</a>{% else %}{{ l.title }}{% endif %}</h4>
       {% if l.source %}<div class="dd-meta">{{ l.source }}</div>{% endif %}
