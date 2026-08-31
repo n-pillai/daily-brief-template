@@ -42,7 +42,7 @@ un-publishing it took a history rewrite, a support ticket, and still left a fork
 
 - `pii-public-scan.yml` — every push is scanned for email/phone/SSN-shaped strings
   (masked output). This repo is public; treat every committed byte as published.
-- The generator **fails closed** on the personal-data mount: unset or missing means the
+- The generator **fails closed** on `PERSONAL_DATA_DIR`: unset or missing means the
   Deep Dive section is omitted with a warning, never guessed.
 - Dry-run artifacts contain your personal sections — don't print or publish them
   (the parent project removed its artifact-printing job for exactly this reason).
