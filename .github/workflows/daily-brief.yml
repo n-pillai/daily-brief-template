@@ -66,6 +66,8 @@ jobs:
           DEEPGRAM_API_KEY: ${{ secrets.DEEPGRAM_API_KEY }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           RECIPIENT_EMAILS: ${{ secrets.RECIPIENT_EMAILS }}
+          RECIPIENT_NAME: ${{ secrets.RECIPIENT_NAME }}
+          SENDER_FROM: ${{ secrets.SENDER_FROM }}
           WEATHER_LOCATION_HOME: ${{ secrets.WEATHER_LOCATION_HOME }}
           WEATHER_LOCATION_WORK: ${{ secrets.WEATHER_LOCATION_WORK }}
           CALENDAR_ICS_URL: ${{ secrets.CALENDAR_ICS_URL }}

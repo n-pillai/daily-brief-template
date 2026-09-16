@@ -128,6 +128,6 @@ if __name__ == "__main__":
 
     print(f"\nResult:")
     print(f"  Detected timezone : {tz_name}")
-    print(f"  Target delivery   : 6:00am {tz_name.replace('_', ' ')} = UTC {utc_hour:02d}:00")
+    print(f"  Target delivery   : {TARGET_LOCAL_HOUR}:00am {tz_name.replace('_', ' ')} = UTC {utc_hour:02d}:00")
     print(f"  Brief runs at     : {utc_dt.strftime('%H:%M')} UTC on {test_date}")
     print()
