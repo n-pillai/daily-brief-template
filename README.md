@@ -14,7 +14,8 @@ it, set your secrets, and it runs.
 Every scheduled run the pipeline:
 
 1. Checks your calendar (`CALENDAR_ICS_URL`) to find your local timezone and only proceeds
-   at your configured hour, wherever you are.
+   at 5am local time, wherever you are (`TARGET_LOCAL_HOUR` in `generate_brief.py` — a
+   source constant, not a secret or config key).
 2. Researches each source/category in `config.json` within a word budget.
 3. Writes the brief with the Anthropic API, runs it through a prose-quality linter
    (`brief_quality.py`), and renders `templates/brief_template.html`.
