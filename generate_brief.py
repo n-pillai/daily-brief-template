@@ -52,9 +52,13 @@ FILE_PREFIX = "dryrun_" if DRY_RUN else ""
 # apology-prose instead of best-effort JSON when it can't fully verify outlet/
 # URL/date constraints (verified in dry runs 2026-08-03). Narration is purely
 # mechanical TTS conversion and runs on Haiku at a third of the token price.
-SEARCH_MODEL = "claude-sonnet-4-5-20250929"
+# Sonnet 5 thinks by default, and thinking counts against max_tokens and puts
+# a non-text block first in response.content. Every Sonnet call here was
+# built for a text-only reply, so SONNET_THINKING keeps thinking off.
+SEARCH_MODEL = "claude-sonnet-5"
 NARRATION_MODEL = "claude-haiku-4-5"
-SYNTHESIS_MODEL = "claude-sonnet-4-5-20250929"
+SYNTHESIS_MODEL = "claude-sonnet-5"
+SONNET_THINKING = {"type": "disabled"}
 SEARCH_MAX_USES = 4  # web searches per category; the brief keeps 3-5 stories per section
 
 DEFAULT_TIMEZONE = "America/Los_Angeles"  # Pacific — fallback when no travel detected
@@ -490,7 +494,8 @@ Return JSON only:
         try:
             response = client.messages.create(
                 model=SEARCH_MODEL,
-                max_tokens=300,
+                max_tokens=400,
+                thinking=SONNET_THINKING,
                 tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 2}],
                 messages=[{"role": "user", "content": prompt}],
             )
@@ -633,7 +638,8 @@ def search_news() -> dict:
             try:
                 response = client.messages.create(
                     model=SEARCH_MODEL,
-                    max_tokens=3000,
+                    max_tokens=4000,
+                    thinking=SONNET_THINKING,
                     tools=[{
                         "type": "web_search_20250305",
                         "name": "web_search",
@@ -925,7 +931,8 @@ Ensure all URLs are real and accurate. Do not invent URLs."""
         try:
             response = client.messages.create(
                 model=SYNTHESIS_MODEL,
-                max_tokens=8000,
+                max_tokens=10500,
+                thinking=SONNET_THINKING,
                 messages=[{"role": "user", "content": prompt}],
             )
             text = response.content[0].text if response.content else ""
@@ -1188,7 +1195,8 @@ Return ONLY a JSON object mapping each id (as a string) to the rewritten text:
     try:
         response = client.messages.create(
             model=SYNTHESIS_MODEL,
-            max_tokens=4000,
+            max_tokens=5200,
+            thinking=SONNET_THINKING,
             messages=[{"role": "user", "content": prompt}],
         )
         text = response.content[0].text if response.content else ""
