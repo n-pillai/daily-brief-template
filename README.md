@@ -260,6 +260,17 @@ test_schedule.py      travel-aware scheduling check — run by hand: python test
 .github/workflows/    daily-brief.yml (the daily run), tests.yml, pii-public-scan.yml
 ```
 
+## Wanted extensions
+
+Things the template doesn't do yet. Each has an issue with the details; help is welcome.
+
+| Extension | Size | Why it isn't trivial |
+|---|---|---|
+| [Choose models in `config.json`](https://github.com/n-pillai/daily-brief-template/issues/11) | Small | The models are constants in `generate_brief.py`; token limits are tuned to them. |
+| [Define sections fully in `config.json`](https://github.com/n-pillai/daily-brief-template/issues/10) | Medium | The six section ids are written into the search prompts, the writing prompt, the layout and the tests. |
+| [Optional section from your knowledge base](https://github.com/n-pillai/daily-brief-template/issues/13) | Medium | Shows the [kb-template](https://github.com/n-pillai/kb-template) `/digest` in the brief, read from your private data like the Deep Dive. |
+| [Other model providers](https://github.com/n-pillai/daily-brief-template/issues/12) | Large | Research uses Anthropic's built-in web search, so another provider needs a separate search service, not just a new model name. |
+
 ## License
 
 MIT — see `LICENSE`. Third-party attributions in `NOTICE`.
