@@ -446,7 +446,7 @@
 <div class="header">
   <div class="brand">The Daily Brief</div>
   <h1>{{ day_name }}, {{ date_str }}</h1>
-  <div class="date">Curated from The Economist, NYT, BBC, TechCrunch, Stratechery, TLDR &amp; more</div>
+  <div class="date">Curated from {{ sources.core[:6] | join(", ") }} &amp; more</div>
   <div class="summary">{{ brief.summary }}</div>
 </div>
 
@@ -465,7 +465,7 @@
     <span class="audio-icon">🎧</span>
     <div class="audio-text">
       <div class="audio-title">Listen to today's brief</div>
-      <div class="audio-sub">~18 min · British English · Deepgram Aura</div>
+      <div class="audio-sub">~18 min · Deepgram Aura</div>
     </div>
   </div>
   <div class="audio-controls">
@@ -484,7 +484,7 @@
     {% else %}
     <div class="weather-emoji">{{ w.weather_icon }}</div>
     <div class="weather-high-label">Today's High</div>
-    <div class="weather-high">{{ w.high_f }}°F</div>
+    <div class="weather-high">{{ w.high_f }}°{{ w.unit or "F" }}</div>
     <div class="weather-desc">{{ w.condition }}</div>
     <div class="weather-hilo">Low {{ w.low_f }}° · Now {{ w.temp_f }}°{% if w.precip_pct and w.precip_pct != '0' %} · 🌧 {{ w.precip_pct }}%{% endif %}</div>
     {% endif %}

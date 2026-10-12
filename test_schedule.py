@@ -12,7 +12,7 @@ import os
 
 # ── Config (mirrors generate_brief.py) ────────────────────────────────────
 CALENDAR_ICS_URL = os.environ.get("CALENDAR_ICS_URL", "")
-DEFAULT_TIMEZONE = "America/Los_Angeles"
+DEFAULT_TIMEZONE = os.environ.get("HOME_TIMEZONE", "").strip() or "America/Los_Angeles"
 TARGET_LOCAL_HOUR = 5
 
 LOCATION_TIMEZONE_MAP = {
@@ -79,7 +79,7 @@ def detect_travel_timezone(test_date: datetime.date) -> tuple[str, list[str]]:
             # TZID check
             if isinstance(start_val, datetime.datetime) and start_val.tzinfo:
                 tz_key = getattr(start_val.tzinfo, "key", str(start_val.tzinfo))
-                if tz_key and tz_key not in ("UTC", DEFAULT_TIMEZONE, "US/Pacific", "America/Pacific"):
+                if tz_key and tz_key not in ("UTC", DEFAULT_TIMEZONE):
                     try:
                         zoneinfo.ZoneInfo(tz_key)
                         return tz_key, matches
