@@ -9,6 +9,8 @@ minutes, and a few accounts with the services listed below. Everything personal 
 your city, your calendar) goes into GitHub's private **secrets** settings, never into the files
 themselves.
 
+Want to help improve it? See [Wanted extensions](#wanted-extensions) and the [open issues](https://github.com/n-pillai/daily-brief-template/issues).
+
 ---
 
 ## Start here
@@ -262,7 +264,10 @@ test_schedule.py      travel-aware scheduling check — run by hand: python test
 
 ## Wanted extensions
 
-Things the template doesn't do yet. Each has an issue with the details; help is welcome.
+Things the template doesn't do yet. If you'd like to contribute, start here: each row links to
+an issue with the problem, where it lives in the code, a proposed approach and what "done"
+means. Comment on the issue before you start so work isn't duplicated, or
+[open a new issue](https://github.com/n-pillai/daily-brief-template/issues/new) for an idea that isn't listed.
 
 | Extension | Size | Why it isn't trivial |
 |---|---|---|
