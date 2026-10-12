@@ -9,6 +9,8 @@ minutes, and a few accounts with the services listed below. Everything personal 
 your city, your calendar) goes into GitHub's private **secrets** settings, never into the files
 themselves.
 
+Want to help improve it? See [Wanted extensions](#wanted-extensions) and the [open issues](https://github.com/n-pillai/daily-brief-template/issues).
+
 ---
 
 ## Start here
@@ -259,6 +261,20 @@ test_regressions.py   checks that sections don't bleed into or repeat each other
 test_schedule.py      travel-aware scheduling check — run by hand: python test_schedule.py [YYYY-MM-DD]
 .github/workflows/    daily-brief.yml (the daily run), tests.yml, pii-public-scan.yml
 ```
+
+## Wanted extensions
+
+Things the template doesn't do yet. If you'd like to contribute, start here: each row links to
+an issue with the problem, where it lives in the code, a proposed approach and what "done"
+means. Comment on the issue before you start so work isn't duplicated, or
+[open a new issue](https://github.com/n-pillai/daily-brief-template/issues/new) for an idea that isn't listed.
+
+| Extension | Size | Why it isn't trivial |
+|---|---|---|
+| [Choose models in `config.json`](https://github.com/n-pillai/daily-brief-template/issues/11) | Small | The models are constants in `generate_brief.py`; token limits are tuned to them. |
+| [Define sections fully in `config.json`](https://github.com/n-pillai/daily-brief-template/issues/10) | Medium | The six section ids are written into the search prompts, the writing prompt, the layout and the tests. |
+| [Optional section from your knowledge base](https://github.com/n-pillai/daily-brief-template/issues/13) | Medium | Shows the [kb-template](https://github.com/n-pillai/kb-template) `/digest` in the brief, read from your private data like the Deep Dive. |
+| [Other model providers](https://github.com/n-pillai/daily-brief-template/issues/12) | Large | Research uses Anthropic's built-in web search, so another provider needs a separate search service, not just a new model name. |
 
 ## License
 
