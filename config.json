@@ -21,6 +21,13 @@
     {"id": "science", "name": "Science & Health", "badge_class": "science", "number": "05", "weight": 2, "freshness_hours": 48},
     {"id": "sports", "name": "Sports", "badge_class": "sports", "number": "06", "weight": 2, "freshness_hours": 24}
   ],
+  "preferences": {
+    "temperature_unit": "F",
+    "nba_scores": false,
+    "sports_focus": "",
+    "narration_voice": "aura-asteria-en",
+    "narration_accent": ""
+  },
   "word_budget": {
     "reading_minutes": 10,
     "words_per_minute": 240,

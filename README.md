@@ -108,8 +108,18 @@ removing or renaming sections means editing `generate_brief.py`.
 Click **Commit changes** when you're done. Keep the commas, quotes and brackets exactly as they
 are — if the file is broken, the next run will fail.
 
-The **sports** roundup (yesterday's NBA scores and a list of sports in season, including cricket)
-is also built into `generate_brief.py`.
+**Personal touches** live in the `preferences` part of the same file:
+
+| Setting | What it does | Example |
+|---|---|---|
+| `temperature_unit` | `"F"` for Fahrenheit or `"C"` for Celsius | `"C"` |
+| `nba_scores` | `true` adds yesterday's NBA scores to Sports | `true` |
+| `sports_focus` | A team or league Sports should pay special attention to; leave `""` for none | `"Team India matches"` |
+| `narration_voice` | The Deepgram voice for the audio (Deepgram's docs list them) | `"aura-helios-en"` (British male) |
+| `narration_accent` | Tells the script writer the accent, so spelling and phrasing match; leave `""` for none | `"British English"` |
+
+The masthead lists the first six outlets in `sources` → `core`, and the long-read section favours
+the ones in `subscriptions`.
 
 ### Step 5 — Do a test run
 

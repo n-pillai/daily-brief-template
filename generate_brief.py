@@ -35,7 +35,6 @@ from brief_quality import (
 # ── Configuration ──────────────────────────────────────────────────────────
 ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
 DEEPGRAM_API_KEY = os.environ.get("DEEPGRAM_API_KEY", "")
-DEEPGRAM_VOICE = "aura-helios-en"  # British male
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
 RECIPIENT_EMAILS = [e.strip() for e in os.environ.get("RECIPIENT_EMAILS", "").split(",") if e.strip()]
 RECIPIENT_NAME = os.environ.get("RECIPIENT_NAME", "").strip() or "you"  # an unset Actions secret arrives as ""
@@ -185,6 +184,15 @@ SOURCES = _config["sources"]
 CATEGORIES = _config["categories"]
 TRUSTED_SOURCES = SOURCES["trusted_sources"]
 
+# Personal touches, all optional in config.json → "preferences". The defaults
+# suit anyone; set them to match the reader (see README, step 4).
+PREFERENCES = _config.get("preferences", {})
+TEMP_UNIT = "C" if str(PREFERENCES.get("temperature_unit", "F")).strip().upper().startswith("C") else "F"
+SHOW_NBA_SCORES = bool(PREFERENCES.get("nba_scores", False))
+SPORTS_FOCUS = str(PREFERENCES.get("sports_focus", "")).strip()          # e.g. "Team India matches"
+DEEPGRAM_VOICE = str(PREFERENCES.get("narration_voice", "")).strip() or "aura-asteria-en"
+NARRATION_ACCENT = str(PREFERENCES.get("narration_accent", "")).strip()  # e.g. "British English"
+
 # Word budget: reading minutes × words-per-minute is a hard ceiling for the
 # whole brief, allocated across sections by weight.
 _budget_cfg = _config.get("word_budget", {})
@@ -288,8 +296,9 @@ def target_utc_hour_for(tz_name: str) -> int:
         ).astimezone(datetime.timezone.utc).hour  # home-timezone fallback
 
 
-def _clothing_tip(high_f: int, weather_code: int, precip_pct: int) -> str:
-    """Return a one-line clothing recommendation based on day's high and conditions."""
+def _clothing_tip(high: int, weather_code: int, precip_pct: int) -> str:
+    """Return a one-line clothing recommendation based on day's high (in TEMP_UNIT) and conditions."""
+    high_f = high * 9 / 5 + 32 if TEMP_UNIT == "C" else high
     rain = precip_pct >= 40 or weather_code in (51, 53, 55, 61, 63, 65, 80, 81, 82, 95, 96, 99)
     snow = weather_code in (71, 73, 75, 77, 85, 86)
     if high_f >= 85:
@@ -357,7 +366,7 @@ def fetch_weather() -> list[dict]:
                     "longitude": lon,
                     "current": "temperature_2m,apparent_temperature,weather_code",
                     "daily": "temperature_2m_max,temperature_2m_min,precipitation_probability_max",
-                    "temperature_unit": "fahrenheit",
+                    "temperature_unit": "celsius" if TEMP_UNIT == "C" else "fahrenheit",
                     "timezone": timezone,
                     "forecast_days": 1,
                 },
@@ -370,7 +379,9 @@ def fetch_weather() -> list[dict]:
             code = current["weather_code"]
             high_f = round(daily["temperature_2m_max"][0])
             precip_pct = round(daily["precipitation_probability_max"][0] or 0)
+            # The *_f keys hold TEMP_UNIT degrees (the names predate the setting).
             results.append({
+                "unit": TEMP_UNIT,
                 "label": loc["label"],
                 "location_icon": loc["icon"],
                 "weather_icon": _wmo_icon(code),
@@ -382,7 +393,7 @@ def fetch_weather() -> list[dict]:
                 "precip_pct": str(precip_pct),
                 "clothing_tip": _clothing_tip(high_f, code, precip_pct),
             })
-            print(f"  ✅ {loc['label']}: {round(current['temperature_2m'])}°F, {_wmo_description(code)}")
+            print(f"  ✅ {loc['label']}: {round(current['temperature_2m'])}°{TEMP_UNIT}, {_wmo_description(code)}")
         except Exception as e:
             print(f"  ❌ Weather fetch failed for {loc['label']}: {e}")
             results.append({"label": loc["label"], "location_icon": loc["icon"], "error": True})
@@ -446,13 +457,7 @@ def get_active_sports() -> str:
         active.append("MLB baseball")
     if month in (10, 11, 12, 1, 2, 3, 4, 5, 6):
         active.append("NHL ice hockey")
-    # Cricket: year-round; IPL runs April–May, WPL runs February–early March
-    cricket = "international cricket (pay special attention to Team India Men and Women matches)"
-    if month == 2:
-        cricket += ", WPL (Women's Premier League)"
-    if month in (4, 5):
-        cricket += ", IPL (Indian Premier League)"
-    active.append(cricket)
+    active.append("international cricket")
     return ", ".join(active)
 
 
@@ -634,7 +639,8 @@ def search_news() -> dict:
             f"Search for the most important sports news of the past {freshness['sports']} hours — scores, results, transfers, and major stories — "
             f"reported by these trusted outlets: {source_list('sports')}. "
             f"Sports currently in season: {active_sports}. Prioritise coverage of these. "
-            f"{window_rule(freshness['sports'])} "
+            + (f"Pay special attention to {SPORTS_FOCUS}. " if SPORTS_FOCUS else "")
+            + f"{window_rule(freshness['sports'])} "
             f"Only return stories where the original reporting outlet is one of these sources. "
             f"Additionally: search for any major knockout tournaments currently in progress (e.g. Champions League, Grand Slam tennis, World Cups, Copa America, etc.). "
             f"For each active tournament found, include one story summarising the state of play — who has advanced, current bracket or standings, and what fixtures are coming up. "
@@ -643,8 +649,9 @@ def search_news() -> dict:
         "explore": (
             f"Search for interesting and thought-provoking long-form or feature stories published in the past 2 weeks "
             f"from these outlets: {explore_sources}. "
-            f"Prioritise The Economist and New York Times — the reader subscribes to both and rarely has time to read long-form. "
-            f"Surface their best essays, analysis, or features from the past 2 weeks first. "
+            + (f"Prioritise {', '.join(SOURCES['subscriptions'])} — the reader subscribes to these and rarely has time to read long-form. "
+               if SOURCES.get("subscriptions") else "")
+            + f"Surface their best essays, analysis, or features from the past 2 weeks first. "
             f"Fill remaining slots from the other outlets. "
             f"Also search for the top longform essays, blog posts, or papers trending on Hacker News in the past week — "
             f"surface the actual articles being linked, not Hacker News discussion pages. "
@@ -1385,7 +1392,7 @@ def generate_narration(brief_data: dict) -> list[dict]:
     for w in weather:
         if not w.get("error"):
             weather_lines.append(
-                f"{w['label']}: high {w['high_f']}°F, {w['condition']}. {w.get('clothing_tip', '')}"
+                f"{w['label']}: high {w['high_f']}°{TEMP_UNIT}, {w['condition']}. {w.get('clothing_tip', '')}"
             )
     weather_str = " / ".join(weather_lines) if weather_lines else ""
 
@@ -1414,7 +1421,8 @@ def generate_narration(brief_data: dict) -> list[dict]:
         ],
     }
 
-    prompt = f"""Convert this daily brief into a spoken narration script for a British English newsreader.
+    newsreader = f"a {NARRATION_ACCENT} newsreader" if NARRATION_ACCENT else "a newsreader"
+    prompt = f"""Convert this daily brief into a spoken narration script for {newsreader}.
 
 Brief data:
 {json.dumps(narration_input, indent=2)}
@@ -1749,9 +1757,9 @@ def generate_email_html(brief_data: dict, mp3_url: str) -> str:
                           f'<div style="font-family:Arial;font-size:11px;color:#6b7280;margin-bottom:4px">'
                           f'{w["location_icon"]} {w["label"]}</div>'
                           f'<div style="font-size:22px;margin-bottom:2px">{w["weather_icon"]}</div>'
-                          f'<div style="font-family:Arial;font-size:20px;font-weight:bold;color:#111">High {w["high_f"]}°F</div>'
+                          f'<div style="font-family:Arial;font-size:20px;font-weight:bold;color:#111">High {w["high_f"]}°{TEMP_UNIT}</div>'
                           f'<div style="font-family:Arial;font-size:12px;color:#6b7280;margin-bottom:4px">'
-                          f'{w["condition"]} · Now {w["temp_f"]}°F · Low {w["low_f"]}°F</div>'
+                          f'{w["condition"]} · Now {w["temp_f"]}°{TEMP_UNIT} · Low {w["low_f"]}°{TEMP_UNIT}</div>'
                           f'<div style="font-family:Arial;font-size:12px;color:#1B4D3E;font-style:italic">'
                           f'{w["clothing_tip"]}</div>'
                           f'</td>')
@@ -1881,7 +1889,7 @@ def main():
     if not DRY_RUN:
         cleanup_old_briefs()
     weather = fetch_weather()
-    nba_scores = fetch_nba_scores()
+    nba_scores = fetch_nba_scores() if SHOW_NBA_SCORES else []
 
     # Step 1: Search
     raw_results = search_news()
