@@ -15,12 +15,16 @@ on:
   workflow_dispatch:
     inputs:
       force:
-        description: "Skip scheduling guard and generate immediately (for testing)"
+        description: "Send now: skip the 5am wait and deliver a real brief (email, audio, saved to briefs/)"
         required: false
+        type: choice
+        options: ["false", "true"]
         default: "false"
       dry_run:
         description: "Dry run: full generation but no email, no audio, no commits — output uploaded as an artifact"
         required: false
+        type: choice
+        options: ["false", "true"]
         default: "false"
 permissions:
   contents: write

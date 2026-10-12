@@ -38,9 +38,21 @@ DEEPGRAM_API_KEY = os.environ.get("DEEPGRAM_API_KEY", "")
 DEEPGRAM_VOICE = "aura-helios-en"  # British male
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
 RECIPIENT_EMAILS = [e.strip() for e in os.environ.get("RECIPIENT_EMAILS", "").split(",") if e.strip()]
-RECIPIENT_NAME = os.environ.get("RECIPIENT_NAME", "you")
+RECIPIENT_NAME = os.environ.get("RECIPIENT_NAME", "").strip() or "you"  # an unset Actions secret arrives as ""
 SENDER_FROM = os.environ.get("SENDER_FROM", "The Daily Brief <brief@example.com>")
 CALENDAR_ICS_URL = os.environ.get("CALENDAR_ICS_URL", "")
+
+# Email is optional, but it takes all three of these. None set = the brief is
+# saved to briefs/ without sending; some set = a setup mistake, caught in main()
+# before any paid API call. SENDER_FROM counts only when set explicitly: Resend
+# rejects the example.com default above.
+EMAIL_SETTINGS = {
+    "RESEND_API_KEY": RESEND_API_KEY,
+    "RECIPIENT_EMAILS": ",".join(RECIPIENT_EMAILS),
+    "SENDER_FROM": os.environ.get("SENDER_FROM", "").strip(),
+}
+EMAIL_MISSING = [name for name, value in EMAIL_SETTINGS.items() if not value]
+EMAIL_ENABLED = not EMAIL_MISSING
 
 # DRY_RUN=true: full pipeline through search, synthesis, validation, word
 # budget, and prose lint — but no email, no audio, no state writes. Output
@@ -1850,6 +1862,21 @@ def main():
             return
         print(f"  ✅ Delivering — UTC {current_utc_hour:02d}:00 is on or past target UTC {target_hour:02d}:00 ({TARGET_LOCAL_HOUR}am {travel_tz.replace('_', ' ')})")
 
+    # Preflight: half-configured email would only fail after the research and
+    # writing were paid for -- and, since the brief is never saved, the next
+    # hourly run would pay again. Stop here instead, before any API call.
+    if not DRY_RUN and EMAIL_MISSING and len(EMAIL_MISSING) < len(EMAIL_SETTINGS):
+        raise SystemExit(
+            f"❌ Email is only partly set up. Missing secret(s): {', '.join(EMAIL_MISSING)}.\n"
+            f"   Add them in Settings → Secrets and variables → Actions, or delete the other "
+            f"email secrets to run without email."
+        )
+    if not DRY_RUN and not EMAIL_ENABLED:
+        print("📭 Email not set up (no RESEND_API_KEY, RECIPIENT_EMAILS or SENDER_FROM) — "
+              "the brief will be saved to briefs/ but not sent.")
+    if not DRY_RUN and not DEEPGRAM_API_KEY:
+        print("🔇 DEEPGRAM_API_KEY not set — no audio version today.")
+
     # Step 0: Clean up old briefs, fetch weather and NBA scores
     if not DRY_RUN:
         cleanup_old_briefs()
@@ -1927,6 +1954,9 @@ def main():
     if DRY_RUN:
         print("🔊 Dry run — skipping audio generation")
         mp3_path = None
+    elif not DEEPGRAM_API_KEY:
+        print("🔇 No DEEPGRAM_API_KEY — skipping audio generation")
+        mp3_path = None
     else:
         mp3_path = generate_audio(narration_sections)
 
@@ -1943,6 +1973,8 @@ def main():
         email_path = OUTPUT_DIR / f"{FILE_PREFIX}email_{DATE_FILE}.html"
         email_path.write_text(email_html)
         print(f"📬 Dry run — email NOT sent; preview saved: {email_path}")
+    elif not EMAIL_ENABLED:
+        print("📭 Email not set up — brief saved to briefs/ only")
     else:
         send_email(email_html)
 

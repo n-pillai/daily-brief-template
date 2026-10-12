@@ -31,8 +31,8 @@ console so there are no surprises.
 ### Step 1 — Make your own copy
 
 1. Sign in to GitHub and open this repository's page.
-2. Click the green **Use this template** button → **Create a new repository**. (If you don't
-   see that button, click **Fork** instead — it works the same way.)
+2. Click the green **Use this template** button → **Create a new repository**. (Don't use
+   **Fork**: a fork of a public repo can't be made private.)
 3. Give it a name, and choose **Public** or **Private**. Read
    [Public or private?](#public-or-private) below before you decide.
 4. Click **Create repository**. From now on, every step happens in *your* copy.
@@ -75,8 +75,13 @@ In your copy of the repository:
 | `CALENDAR_ICS_URL` | Your calendar's secret iCal address | `https://calendar.google.com/…/basic.ics` |
 
 Only `ANTHROPIC_API_KEY` is strictly required. Anything you leave out is simply skipped — no
-audio without Deepgram, no email without Resend, and so on. **Do set `HOME_TIMEZONE`**: without
-it the brief assumes you live in US Pacific time.
+audio without Deepgram, no weather without a city, no travel without a calendar.
+
+- **Email takes three secrets together:** `RESEND_API_KEY`, `RECIPIENT_EMAILS` and `SENDER_FROM`.
+  Set all three to get the email, or none of them to only save the brief in your repository. If
+  only some are set, the run stops straight away (before spending anything) and names the
+  missing ones.
+- **Do set `HOME_TIMEZONE`**: without it the brief assumes you live in US Pacific time.
 
 ### Step 4 — Choose your news
 
@@ -120,6 +125,18 @@ nothing to the repository. The download contains your personal sections, so don'
 
 If you get a red ✗, click the run, then the failed step, and read the last few lines — they
 usually name the missing secret or the problem.
+
+### Step 5b — Send yourself a real one
+
+The dry run doesn't touch email or audio, so check those now rather than at 5am tomorrow:
+
+1. **Actions** → **Daily Brief** → **Run workflow**.
+2. Leave **dry_run** at `false`, set **force** to `true`, and click **Run workflow**.
+3. Within a few minutes the email should arrive (check spam the first time), and a new file
+   appears in the `briefs/` folder.
+
+`force` skips the wait for 5am. A forced run counts as today's brief, so the scheduled run won't
+send a second one today.
 
 ### Step 6 — Turn on the daily schedule
 
