@@ -61,7 +61,17 @@ SYNTHESIS_MODEL = "claude-sonnet-5"
 SONNET_THINKING = {"type": "disabled"}
 SEARCH_MAX_USES = 4  # web searches per category; the brief keeps 3-5 stories per section
 
-DEFAULT_TIMEZONE = "America/Los_Angeles"  # Pacific — fallback when no travel detected
+# Your home timezone (an IANA name such as "Europe/London" or "Asia/Kolkata"), from
+# the HOME_TIMEZONE secret. It sets "today" for the masthead and file names, and the
+# 5am delivery hour whenever the calendar shows no travel. Unset or misspelled falls
+# back to US Pacific, with a warning, rather than stopping the run.
+_FALLBACK_TIMEZONE = "America/Los_Angeles"
+DEFAULT_TIMEZONE = os.environ.get("HOME_TIMEZONE", "").strip() or _FALLBACK_TIMEZONE
+try:
+    zoneinfo.ZoneInfo(DEFAULT_TIMEZONE)
+except (zoneinfo.ZoneInfoNotFoundError, ValueError):
+    print(f"  ⚠️  HOME_TIMEZONE '{DEFAULT_TIMEZONE}' is not a known timezone — using {_FALLBACK_TIMEZONE}")
+    DEFAULT_TIMEZONE = _FALLBACK_TIMEZONE
 TARGET_LOCAL_HOUR = 5                     # Target 5:00am — GitHub Actions delays ~40min so delivery lands ~5:40–6:00am
 
 # City/country keywords → IANA timezone. Extend as needed.
@@ -234,7 +244,7 @@ def detect_travel_timezone() -> str:
             # 1. Try TZID from a datetime DTSTART
             if isinstance(start_val, datetime.datetime) and start_val.tzinfo:
                 tz_key = getattr(start_val.tzinfo, "key", str(start_val.tzinfo))
-                if tz_key and tz_key not in ("UTC", DEFAULT_TIMEZONE, "US/Pacific", "America/Pacific"):
+                if tz_key and tz_key not in ("UTC", DEFAULT_TIMEZONE):
                     try:
                         zoneinfo.ZoneInfo(tz_key)  # validate
                         print(f"  🌍 Travel detected via event TZID: {tz_key}")
@@ -250,7 +260,7 @@ def detect_travel_timezone() -> str:
                     return tz
         return DEFAULT_TIMEZONE
     except Exception as e:
-        print(f"  ⚠️  Calendar check failed: {e} — defaulting to Pacific")
+        print(f"  ⚠️  Calendar check failed: {e} — defaulting to {DEFAULT_TIMEZONE}")
         return DEFAULT_TIMEZONE
 
 
@@ -261,7 +271,9 @@ def target_utc_hour_for(tz_name: str) -> int:
         local_dt = datetime.datetime.combine(TODAY, datetime.time(TARGET_LOCAL_HOUR, 0), tzinfo=tz)
         return local_dt.astimezone(datetime.timezone.utc).hour
     except Exception:
-        return 13  # Pacific PDT fallback
+        return datetime.datetime.combine(
+            TODAY, datetime.time(TARGET_LOCAL_HOUR, 0), tzinfo=zoneinfo.ZoneInfo(DEFAULT_TIMEZONE)
+        ).astimezone(datetime.timezone.utc).hour  # home-timezone fallback
 
 
 def _clothing_tip(high_f: int, weather_code: int, precip_pct: int) -> str:

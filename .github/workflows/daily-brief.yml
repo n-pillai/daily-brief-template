@@ -36,8 +36,11 @@ jobs:
 
       - name: Skip if brief already generated today
         id: check_existing
+        env:
+          # Must match the date generate_brief.py uses for the file name.
+          HOME_TIMEZONE: ${{ secrets.HOME_TIMEZONE }}
         run: |
-          DATE=$(TZ=America/Los_Angeles date +%Y-%m-%d)
+          DATE=$(TZ="${HOME_TIMEZONE:-America/Los_Angeles}" date +%Y-%m-%d)
           if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
             echo "Dry run — always generating."
             echo "skip=false" >> $GITHUB_OUTPUT
@@ -71,6 +74,7 @@ jobs:
           WEATHER_LOCATION_HOME: ${{ secrets.WEATHER_LOCATION_HOME }}
           WEATHER_LOCATION_WORK: ${{ secrets.WEATHER_LOCATION_WORK }}
           CALENDAR_ICS_URL: ${{ secrets.CALENDAR_ICS_URL }}
+          HOME_TIMEZONE: ${{ secrets.HOME_TIMEZONE }}
           FORCE_GENERATE: ${{ github.event.inputs.force }}
           DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: python generate_brief.py

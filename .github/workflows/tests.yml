@@ -2,8 +2,8 @@ name: tests
 
 # test_quality.py and test_regressions.py: pure and offline, no API keys or
 # network, so safe on PRs from forks too. test_schedule.py is excluded here --
-# it needs CALENDAR_ICS_URL and network access, so it stays a manual dispatch
-# in test-schedule.yml.
+# it needs CALENDAR_ICS_URL and network access, so run it by hand:
+# `python test_schedule.py [YYYY-MM-DD]`.
 
 on:
   push:
