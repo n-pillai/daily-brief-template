@@ -5,3 +5,6 @@ __pycache__/
 venv/
 briefs/*.json
 briefs/dryrun_*
+
+# Claude Code "don't ask again" approvals: saved per machine, can hold typed-in secrets. Never commit.
+.claude/settings.local.json
